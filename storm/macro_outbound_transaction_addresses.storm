@@ -1,0 +1,1 @@
++crypto:currency:address <- * +crypto:payment:input -> crypto:currency:transaction <- * +crypto:payment:output -> crypto:currency:address | uniq

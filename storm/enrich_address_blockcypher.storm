@@ -1,0 +1,25 @@
+/*
+Enrich crypto:currency:address with Blockcypher without wasting API quota.
+
+If the target node has already been enriched (i.e. has #blockcypher_enriched tag), do not process it.
+
+If we successfully query blockcypher, mark the node with #blockcypher_enriched tag.
+*/
+
+$coin = :coin
+$iden = :iden
+
+if ($lib.len($node.tags("blockcypher_enriched")) < 1) {
+    blockcypher.transactions --yield
+    empty {
+        $lib.print("Failure - Rate Limiting likely")
+        $lib.exit()
+    }
+
+    {crypto:currency:address = $lib.str.concat($coin, "/", $iden) | +crypto:currency:address | [+#blockcypher_enriched]}
+
+}
+else {
+    $lib.print("Already enriched node, skipping")
+}
+

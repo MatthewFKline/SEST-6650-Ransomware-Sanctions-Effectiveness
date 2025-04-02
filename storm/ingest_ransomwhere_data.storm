@@ -1,0 +1,435 @@
+/*
+Given the JSON dataset from ransomwhere (see https://ransomwhe.re/#browse),
+create a crypto:currency:address node from each entry and tag it with the appropriate family/actor name where possible.
+*/
+
+for $jsonrow in $rows {
+
+    crypto:currency:address=("btc", $jsonrow.address)
+    [+#rep.ransomwhere]
+    switch $jsonrow.family {
+        "7ev3n": {
+            [+#rep.ransomwhere.7ev3n]
+        }
+        "AES-NI": {
+            [+#rep.ransomwhere.aes_ni]
+        }
+        "APT": {
+            [+#rep.ransomwhere.apt]
+        }
+        "AdamLocker": {
+            [+#rep.ransomwhere.adamlocker]
+        }
+        "Akira": {
+            [+#rep.ransomwhere.akira]
+        }
+        "Ako": {
+            [+#rep.ransomwhere.ako]
+        }
+        "AlbDecryptor": {
+            [+#rep.ransomwhere.albdecryptor]
+        }
+        "Alphabet": {
+            [+#rep.ransomwhere.alphabet]
+        }
+        "AngleWare": {
+            [+#rep.ransomwhere.angleware]
+        }
+        "Avaddon": {
+            [+#rep.ransomwhere.avaddon]
+        }
+        "Avos Locker": {
+            [+#rep.ransomwhere.avos_locker]
+        }
+        "AvosLocker": {
+            [+#rep.ransomwhere.avoslocker]
+        }
+        "BadEncrypt": {
+            [+#rep.ransomwhere.badencrypt]
+        }
+        "Badblock": {
+            [+#rep.ransomwhere.badblock]
+        }
+        "Bagli": {
+            [+#rep.ransomwhere.bagli]
+        }
+        "Bitpaymer / DoppelPaymer": {
+            [+#rep.ransomwhere.bitpaymer]
+            [+#rep.ransomwhere.doppelpaymer]
+        }
+        "Black Basta": {
+            [+#rep.ransomwhere.black_basta]
+        }
+        "Black Kingdom": {
+            [+#rep.ransomwhere.black_kingdom]
+        }
+        "Black Mamba": {
+            [+#rep.ransomwhere.black_mamba]
+        }
+        "Black Ruby": {
+            [+#rep.ransomwhere.black_ruby]
+        }
+        "BlackCat": {
+            [+#rep.ransomwhere.blackcat]
+        }
+        "BlackFeather": {
+            [+#rep.ransomwhere.blackfeather]
+        }
+        "BlackMatter": {
+            [+#rep.ransomwhere.blackmatter]
+        }
+        "BlackRouter": {
+            [+#rep.ransomwhere.blackrouter]
+        }
+        "BlackSuit": {
+            [+#rep.ransomwhere.blacksuit]
+        }
+        "Bucbi": {
+            [+#rep.ransomwhere.bucbi]
+        }
+        "Buddy": {
+            [+#rep.ransomwhere.buddy]
+        }
+        "CTB-Locker": {
+            [+#rep.ransomwhere.ctb_locker]
+        }
+        "Chimera": {
+            [+#rep.ransomwhere.chimera]
+        }
+        "ChupaCabra": {
+            [+#rep.ransomwhere.chupacabra]
+        }
+        "ComradeCircle": {
+            [+#rep.ransomwhere.comradecircle]
+        }
+        "Conti": {
+            [+#rep.ransomwhere.conti]
+        }
+        "CryptConsole": {
+            [+#rep.ransomwhere.cryptconsole]
+        }
+        "CryptXXX": {
+            [+#rep.ransomwhere.cryptxxx]
+        }
+        "CryptoHost": {
+            [+#rep.ransomwhere.cryptohost]
+        }
+        "CryptoLocker": {
+            [+#rep.ransomwhere.cryptolocker]
+        }
+        "CryptoSweetTooth": {
+            [+#rep.ransomwhere.cryptosweettooth]
+        }
+        "CryptoTorLocker2015": {
+            [+#rep.ransomwhere.cryptotorlocker2015]
+        }
+        "Cryptohitman": {
+            [+#rep.ransomwhere.cryptohitman]
+        }
+        "Cryptowall": {
+            [+#rep.ransomwhere.cryptowall]
+        }
+        "Cuba": {
+            [+#rep.ransomwhere.cuba]
+        }
+        "CyberSpLiTTER": {
+            [+#rep.ransomwhere.cybersplitter]
+        }
+        "DMALocker": {
+            [+#rep.ransomwhere.dmalocker]
+        }
+        "DMALockerv3": {
+            [+#rep.ransomwhere.dmalockerv3]
+        }
+        "DarkSide": {
+            [+#rep.ransomwhere.darkside]
+        }
+        "DeadBolt": {
+            [+#rep.ransomwhere.deadbolt]
+        }
+        "DecryptIomega": {
+            [+#rep.ransomwhere.decryptiomega]
+        }
+        "Decryptiomega": {
+            [+#rep.ransomwhere.decryptiomega]
+        }
+        "Domino": {
+            [+#rep.ransomwhere.domino]
+        }
+        "Doxware": {
+            [+#rep.ransomwhere.doxware]
+        }
+        "EDA2": {
+            [+#rep.ransomwhere.eda2]
+        }
+        "Ecovector": {
+            [+#rep.ransomwhere.ecovector]
+        }
+        "Egregor": {
+            [+#rep.ransomwhere.egregor]
+        }
+        "Encrpt3d": {
+            [+#rep.ransomwhere.encrpt3d]
+        }
+        "Exotic": {
+            [+#rep.ransomwhere.exotic]
+        }
+        "FakeGlobe": {
+            [+#rep.ransomwhere.fakeglobe]
+        }
+        "File-Locker": {
+            [+#rep.ransomwhere.file_locker]
+        }
+        "Filecry": {
+            [+#rep.ransomwhere.filecry]
+        }
+        "FireCrypt": {
+            [+#rep.ransomwhere.firecrypt]
+        }
+        "Flyper": {
+            [+#rep.ransomwhere.flyper]
+        }
+        "Git": {
+            [+#rep.ransomwhere.git]
+        }
+        "Globe": {
+            [+#rep.ransomwhere.globe]
+        }
+        "GlobeImposter": {
+            [+#rep.ransomwhere.globeimposter]
+        }
+        "Globev2": {
+            [+#rep.ransomwhere.globev2]
+        }
+        "Globev3": {
+            [+#rep.ransomwhere.globev3]
+        }
+        "Gula": {
+            [+#rep.ransomwhere.gula]
+        }
+        "HC6/HC7": {
+            [+#rep.ransomwhere.hc6]
+            [+#rep.ransomwhere.hc7]
+        }
+        "HelloKitty": {
+            [+#rep.ransomwhere.hellokitty]
+        }
+        "Hive": {
+            [+#rep.ransomwhere.hive]
+        }
+        "JigSaw": {
+            [+#rep.ransomwhere.jigsaw]
+        }
+        "Jigsaw": {
+            [+#rep.ransomwhere.jigsaw]
+        }
+        "Karakurt": {
+            [+#rep.ransomwhere.karakurt]
+        }
+        "Kelly": {
+            [+#rep.ransomwhere.kelly]
+        }
+        "LamdaLocker": {
+            [+#rep.ransomwhere.lamdalocker]
+        }
+        "LockBit 2.0": {
+            [+#rep.ransomwhere.lockbit_2_0]
+        }
+        "LockBit": {
+            [+#rep.ransomwhere.lockbit]
+        }
+        "LockOn": {
+            [+#rep.ransomwhere.lockon]
+        }
+        "Lockbit": {
+            [+#rep.ransomwhere.lockbit]
+        }
+        "Locky": {
+            [+#rep.ransomwhere.locky]
+        }
+        "Makop": {
+            [+#rep.ransomwhere.makop]
+        }
+        "Mallox": {
+            [+#rep.ransomwhere.mallox]
+        }
+        "Maui": {
+            [+#rep.ransomwhere.maui]
+        }
+        "MedusaLocker": {
+            [+#rep.ransomwhere.medusalocker]
+        }
+        "MountLocker": {
+            [+#rep.ransomwhere.mountlocker]
+        }
+        "Nemucod": {
+            [+#rep.ransomwhere.nemucod]
+        }
+        "Netwalker (Mailto)": {
+            [+#rep.ransomwhere.netwalker]
+            [+#rep.ransomwhere.mailto]
+        }
+        "NoobCrypt": {
+            [+#rep.ransomwhere.noobcrypt]
+        }
+        "NotNevada": {
+            [+#rep.ransomwhere.notnevada]
+        }
+        "NotPetya": {
+            [+#rep.ransomwhere.notpetya]
+        }
+        "NullByte": {
+            [+#rep.ransomwhere.nullbyte]
+        }
+        "PayDay": {
+            [+#rep.ransomwhere.payday]
+        }
+        "Pgpsnippet": {
+            [+#rep.ransomwhere.pgpsnippet]
+        }
+        "Philadelphia": {
+            [+#rep.ransomwhere.philadelphia]
+        }
+        "Phobos": {
+            [+#rep.ransomwhere.phobos]
+        }
+        "Phoenix": {
+            [+#rep.ransomwhere.phoenix]
+        }
+        "PopCornTime": {
+            [+#rep.ransomwhere.popcorntime]
+        }
+        "Predator": {
+            [+#rep.ransomwhere.predator]
+        }
+        "Qlocker": {
+            [+#rep.ransomwhere.qlocker]
+        }
+        "Quantum": {
+            [+#rep.ransomwhere.quantum]
+        }
+        "Qweuirtksd": {
+            [+#rep.ransomwhere.qweuirtksd]
+        }
+        "REKTLocker": {
+            [+#rep.ransomwhere.rektlocker]
+        }
+        "REvil / Sodinokibi": {
+            [+#rep.ransomwhere.revil]
+            [+#rep.ransomwhere.sodinokibi]
+        }
+        "RagnarLocker": {
+            [+#rep.ransomwhere.ragnarlocker]
+        }
+        "RansomPlus": {
+            [+#rep.ransomwhere.ransomplus]
+        }
+        "Ransomnix": {
+            [+#rep.ransomwhere.ransomnix]
+        }
+        "Ranzy Locker": {
+            [+#rep.ransomwhere.ranzy_locker]
+        }
+        "Razy": {
+            [+#rep.ransomwhere.razy]
+        }
+        "Rush/Sanction": {
+            [+#rep.ransomwhere.rush]
+            [+#rep.ransomwhere.sanction]
+        }
+        "Ryuk": {
+            [+#rep.ransomwhere.ryuk]
+        }
+        "Sam": {
+            [+#rep.ransomwhere.sam]
+        }
+        "SamSam": {
+            [+#rep.ransomwhere.samsam]
+        }
+        "Spora": {
+            [+#rep.ransomwhere.spora]
+        }
+        "StorageCrypter": {
+            [+#rep.ransomwhere.storagecrypter]
+        }
+        "Stupid": {
+            [+#rep.ransomwhere.stupid]
+        }
+        "SunCrypt": {
+            [+#rep.ransomwhere.suncrypt]
+        }
+        "SynAck": {
+            [+#rep.ransomwhere.synack]
+        }
+        "Tejodes": {
+            [+#rep.ransomwhere.tejodes]
+        }
+        "TeslaCrypt": {
+            [+#rep.ransomwhere.teslacrypt]
+        }
+        "ThunderCrypt": {
+            [+#rep.ransomwhere.thundercrypt]
+        }
+        "TowerWeb": {
+            [+#rep.ransomwhere.towerweb]
+        }
+        "TripleM": {
+            [+#rep.ransomwhere.triplem]
+        }
+        "Trump Locker": {
+            [+#rep.ransomwhere.trump_locker]
+        }
+        "Ununlabeleded": {
+            [+#rep.ransomwhere.unlabeled]
+        }
+        "Vega / Jamper / Buran": {
+            [+#rep.ransomwhere.vega]
+            [+#rep.ransomwhere.jamper]
+            [+#rep.ransomwhere.buran]
+        }
+        "VenusLocker": {
+            [+#rep.ransomwhere.venuslocker]
+        }
+        "Vevolocker": {
+            [+#rep.ransomwhere.vevolocker]
+        }
+        "WannaCry": {
+            [+#rep.ransomwhere.wannacry]
+        }
+        "WannaRen": {
+            [+#rep.ransomwhere.wannaren]
+        }
+        "WannaSmile": {
+            [+#rep.ransomwhere.wannasmile]
+        }
+        "XLocker": {
+            [+#rep.ransomwhere.xlocker]
+        }
+        "XLockerv5.0": {
+            [+#rep.ransomwhere.xlockerv5_0]
+        }
+        "XTPLocker": {
+            [+#rep.ransomwhere.xtplocker]
+        }
+        "Xorist": {
+            [+#rep.ransomwhere.xorist]
+        }
+        "ZeroLocker": {
+            [+#rep.ransomwhere.zerolocker]
+        }
+        "Zyka": {
+            [+#rep.ransomwhere.zyka]
+        }
+        "darkangels": {
+            [+#rep.ransomwhere.darkangels]
+        }
+        "l1me_expl0it": {
+            [+#rep.ransomwhere.l1me_expl0it]
+        }
+        *: {
+            $lib.print($jsonrow.family)
+        }
+
+    }
+
+}
