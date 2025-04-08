@@ -1,0 +1,516 @@
+/*
+Mark nodes with the distance from the nearest ransom address or sanctioned address.
+
+Given crypto:currency:address nodes with tags like #rep.ransomwhere.*,
+mark all crypto:currency:address nodes connected by an outgoing transaction with a tag like #dist.rep.ransomwhere.*.1
+
+Given crypto:currency:address nodes with tags like #dist.rep.ransomwhere.*.n,
+mark all crypto:currency:address nodes connected by an outgoing transaction with a tag like #dist.rep.ransomwhere.*.n+1
+Only tag nodes such that a single #dist.rep.ransomwhere.*.* tag is present, and always use the shortest known path
+
+Given crypto:currency:address nodes with tags like #ofac.sandtion.sdn,
+mark all crypto:currency:address nodes connected by an incoming transaction with a tag like #dist.sanction.ofac.sdn.1
+
+Given crypto:currency:address nodes with tags like #dist.ofac.sandtion.sdn.n,
+mark all crypto:currency:address nodes connected by an incoming transaction with a tag like #dist.ofac.sandtion.sdn.n+1
+Only tag nodes such that a single #dist.ofac.sandtion.sdn.* tag is present, and always use the shortest known path
+
+For each distance tag, mark the previous node in the chain via the tag property :prevnode
+This requires the creation of such a tag property in Synapse's data model, which can be done via:
+$lib.model.ext.addTagProp("prevnode",(str, ({})),({"doc": "Previous node in chain"}))
+*/
+
+/*
+Test addresses
+
+crypto:currency:address=btc/3KmK5z4CAvn3aL4Q8F2gWbhuPRy9ZmEurN // rep.ransomwhere.qlocker node
+crypto:currency:address=btc/3QP1rnycGirbRqDs6t6jCs8QBDED9zF4VZ // dist.rep.ransomwhere.qlocker.1 node
+
+crypto:currency:address=btc/3N3YSDvp4cbhEgNGabQxTN39kEzJmwG8Ah // sanction.ofac.sdn node with inbound and outbound
+crypto:currency:address=btc/bc1qlqc4v97pr49jrjymetf27kxwz0zwmzkys08xgt // dist.sanction.ofac.sdn.1
+*/
+
+
+$base_node_address = $lib.str.concat("btc/",:iden)
+$lib.print($base_node_address)
+
++(crypto:currency:address)
+
+$dist_value = "" // Value of the dist tag, if any
+$dist_prefix = "" // Prefix of the dist tag (i.e. dist.rep.ransomwhere.) if any
+$aka = "" // rep tag, if any (i.e. rep.ransomwhere.lockbit)
+
+
+// Find distance information, if any
+$lib.print("Assessing distance aspects")
+if ($lib.len($node.tags("dist.rep.ransomwhere.*.*")) > 0) {
+    for $item in $node.tags("dist.rep.ransomwhere.*.*") {
+        $dist_value = ($lib.regex.findall("\d", $item))
+        $dist_value = $lib.str.join("", $dist_value)
+        $dist_prefix = ($lib.regex.findall("dist.rep.ransomwhere.[a-zA-Z0-9]*", $item))
+        $dist_prefix = $lib.str.join("", $dist_prefix)
+
+        $lib.print($lib.str.concat("Identified root (base of distance tag to apply): ", $dist_prefix))
+        $lib.print($lib.str.concat("Identified distance (number of transactions): ", $dist_value))
+    }
+}
+
+else {
+    $lib.print("No distance aspects to assess")
+}
+
+
+
+$lib.print("Assessing aka aspects")
+
+if ($lib.len($node.tags("rep.ransomwhere.*")) > 0) {
+        for $item in $node.tags("rep.ransomwhere.*") {
+            $aka = $lib.str.join("", $item)
+
+            $lib.print($lib.str.concat("Identified aka: ", $aka))
+    }
+}
+
+else {
+    $lib.print("No aka aspects to assess")
+}
+
+
+$sanc_dist_value = ""
+$sanc_dist_prefix = ""
+$sanc_aka = ""
+
+$lib.print("Assessing distance aspects (sanc)")
+if ($lib.len($node.tags("dist.sanction.ofac.sdn.*")) > 0) {
+    for $item in $node.tags("dist.sanction.ofac.sdn.*") {
+        $sanc_dist_value = ($lib.regex.findall("\d", $item))
+        $sanc_dist_value = $lib.str.join("", $sanc_dist_value)
+        $sanc_dist_prefix = ($lib.regex.findall("dist.sanction.ofac.sdn", $item))
+        $sanc_dist_prefix = $lib.str.join("", $sanc_dist_prefix)
+
+        $lib.print($lib.str.concat("Identified root (base of distance tag to apply) (sanc): ", $sanc_dist_prefix))
+        $lib.print($lib.str.concat("Identified distance (number of transactions) (sanc): ", $sanc_dist_value))
+    }
+}
+
+else {
+    $lib.print("No distance aspects to assess (sanc)")
+}
+
+$lib.print("Assessing aka aspects (sanc)")
+
+if ($lib.len($node.tags("sanction.ofac.*")) > 0) {
+        for $item in $node.tags("sanction.ofac.sdn") {
+            $sanc_aka = $lib.str.join("", $item)
+
+            $lib.print($lib.str.concat("Identified aka (sanc): ", $sanc_aka))
+    }
+}
+
+else {
+    $lib.print("No aka aspects to assess (sanc)")
+}
+
+
+$lib.print("================================================================================")
+$lib.print("NODE:")
+$lib.print($node)
+$lib.print("RANSOMWARE AKA TAG")
+$lib.print($aka)
+$lib.print("RANSOMWARE DISTANCE TAGS")
+$lib.print($node.tags("dist.rep.ransomwhere.*.*"))
+$lib.print("SANCTION AKA TAGS")
+$lib.print($node.tags("sanction.ofac.*"))
+$lib.print("SANCTION DISTANCE TAGS")
+$lib.print($node.tags("dist.sanction.ofac.sdn.*"))
+$lib.print("----------")
+$lib.print($lib.str.concat("$dist_prefix (base of distance tag to apply to adjacent nodes): ", $dist_prefix))
+$lib.print($lib.str.concat("$dist_value (number of transactions): ", $dist_value))
+$lib.print($lib.str.concat("$sanc_dist_prefix (base of distance tag to apply to apply to adjacent nodes): ", $sanc_dist_prefix))
+$lib.print($lib.str.concat("$sanc_dist_value (number of transactions): ", $sanc_dist_value))
+$lib.print("================================================================================")
+
+
+
+
+// If we have a rep.ransomwhere.* tag, mark all connected outbound addresses with a distance of 1
+// Omit any nodes with the rep.ransomwhere.* tag, in case the node is both sending and receiving to a transaction
+if $aka {
+
+    $connected_outbound_nodes = $node <- * +crypto:payment:input -> crypto:currency:transaction <- * +crypto:payment:output -> crypto:currency:address -#$aka | uniq
+
+    |
+    {
+        try {
+            // $lib.print($node)
+            $newtag = $lib.str.concat("dist.",$aka,".1")
+            $lib.print($lib.str.concat("Applying ", $newtag, " to ", $node))
+            | [+#$newtag:prevnode=$base_node_address]
+            $lib.print($lib.str.concat("Applied ", $newtag, " to ", $node))
+        }
+
+        catch * as err {
+            $lib.print("Encountered error")
+        }
+    }
+
+}
+
+
+
+// If we have a dist.rep.ransomwhere.* tag, mark all connected addresses with a distance of n + 1
+// Omit any nodes that already have a rep.ransomwhere.* tag or a dist.rep.ransomwhere.* tag
+
+if $dist_value {
+
+    switch $dist_value {
+        "1": {
+            $newtag = $lib.str.concat($dist_prefix,".2")
+        }
+        "2": {
+            $newtag = $lib.str.concat($dist_prefix,".3")
+        }
+        "3": {
+            $newtag = $lib.str.concat($dist_prefix,".4")
+        }
+        "4": {
+            $newtag = $lib.str.concat($dist_prefix,".5")
+        }
+        "5": {
+            $newtag = $lib.str.concat($dist_prefix,".6")
+        }
+        "6": {
+            $newtag = $lib.str.concat($dist_prefix,".7")
+        }
+        "7": {
+            $newtag = $lib.str.concat($dist_prefix,".8")
+        }
+        "8": {
+            $newtag = $lib.str.concat($dist_prefix,".9")
+        }
+        "9": {
+            $newtag = $lib.str.concat($dist_prefix,".10")
+        }
+        "10": {
+            $newtag = $lib.str.concat($dist_prefix,".11")
+        }
+        "11": {
+            $newtag = $lib.str.concat($dist_prefix,".12")
+        }
+    }
+
+    $connected_outbound_nodes = $node <- * +crypto:payment:input -> crypto:currency:transaction <- * +crypto:payment:output -> crypto:currency:address -#$aka | uniq
+
+    |
+    {
+
+        for $item in $node.tags($lib.str.join("",($dist_prefix,".*"))) { // For all tags formatted like dist.rep.ransomwhere.family_name.number
+            $old_distance_values = ($lib.regex.findall("\d", $item)) // List of strings like ['2', '4'], should only be one... ideally
+            $new_distance_value = $lib.regex.findall("\d", $newtag).index(0)
+            if ($lib.math.number($new_distance_value) < $lib.math.number($old_distance_values.index(0)))
+                {
+                    $lib.print($lib.str.concat("Current path is ", $new_distance_value, " transactions away"))
+                    $lib.print($lib.str.concat("Previous path is ", $old_distance_values.index(0), " transactions away"))
+                    $lib.print("Removing old value")
+                    $lib.print($lib.str.concat("Removing ", $lib.str.concat($dist_prefix,".",$old_distance_values.index(0)), " from ", $node))
+                    | [-#$lib.str.concat($dist_prefix,".",$old_distance_values.index(0))]
+                    $lib.print($lib.str.concat("Removed ", $lib.str.concat($dist_prefix,".",$old_distance_values.index(0)), " from ", $node))
+                }
+            else {
+                    $lib.print($lib.str.concat("Current path is ", $new_distance_value, " transactions away"))
+                    $lib.print($lib.str.concat("Previous path is ", $old_distance_values.index(0), " transactions away"))
+                    $lib.print("Not removing old value")
+            }
+        }
+
+    }
+
+    {
+
+        if ($lib.len($node.tags($dist_prefix)) < 1) { // If there are no tags like dist.rep.ransomwhere.family_name.number
+
+            try {
+
+                // $lib.print($node)
+                // $newtag = "NEW TAG"
+                $lib.print($lib.str.concat("Applying ", $newtag, " to ", $node))
+                | [+#$newtag:prevnode=$base_node_address]
+                $lib.print($lib.str.concat("Applied ", $newtag, " to ", $node))
+            }
+
+            catch * as err {
+                $lib.print("Encountered error")
+            }
+
+        }
+
+        else {
+            $lib.print("Node has dist.rep.ransomwhere.*.* tag, not acting")
+        }
+
+    }
+
+}
+
+
+
+// // --------------------------------------------------------------------------------
+// // --------------------------------------------------------------------------------
+// // --------------------------------------------------------------------------------
+// // --------------------------------------------------------------------------------
+
+// // Sanction section
+
+
+
+if $sanc_aka {
+
+    {$connected_outbound_nodes = $node <- * +crypto:payment:input -> crypto:currency:transaction <- * +crypto:payment:output -> crypto:currency:address -#sanction.ofac.sdn | uniq
+
+    |
+    {
+        try {
+            $newtag = $lib.str.concat("dist.",$sanc_aka,".1")
+            $lib.print($lib.str.concat("Applying ", $newtag, " to ", $node))
+            | [+#$newtag:prevnode=$base_node_address]
+            $lib.print($lib.str.concat("Applied ", $newtag, " to ", $node))
+        }
+
+        catch * as err {
+            $lib.print("Encountered error")
+        }
+    }}
+
+    {$connected_input_nodes = $node <- * +crypto:payment:output -> crypto:currency:transaction <- * +crypto:payment:input -> crypto:currency:address -#sanction.ofac.sdn | uniq
+
+    |
+    {
+        try {
+            $newtag = $lib.str.concat("dist.",$sanc_aka,".1")
+            $lib.print($lib.str.concat("Applying ", $newtag, " to ", $node))
+            | [+#$newtag:prevnode=$base_node_address]
+            $lib.print($lib.str.concat("Applied ", $newtag, " to ", $node))
+        }
+
+        catch * as err {
+            $lib.print("Encountered error")
+        }
+    }}
+
+}
+
+
+
+if $sanc_dist_value {
+
+    switch $sanc_dist_value {
+        "1": {
+            $newtag = $lib.str.concat($sanc_dist_prefix,".2")
+        }
+        "2": {
+            $newtag = $lib.str.concat($sanc_dist_prefix,".3")
+        }
+        "3": {
+            $newtag = $lib.str.concat($sanc_dist_prefix,".4")
+        }
+        "4": {
+            $newtag = $lib.str.concat($sanc_dist_prefix,".5")
+        }
+        "5": {
+            $newtag = $lib.str.concat($sanc_dist_prefix,".6")
+        }
+        "6": {
+            $newtag = $lib.str.concat($sanc_dist_prefix,".7")
+        }
+        "7": {
+            $newtag = $lib.str.concat($sanc_dist_prefix,".8")
+        }
+        "8": {
+            $newtag = $lib.str.concat($sanc_dist_prefix,".9")
+        }
+        "9": {
+            $newtag = $lib.str.concat($sanc_dist_prefix,".10")
+        }
+        "10": {
+            $newtag = $lib.str.concat($sanc_dist_prefix,".11")
+        }
+        "11": {
+            $newtag = $lib.str.concat($sanc_dist_prefix,".12")
+        }
+    }
+
+    // {$connected_outbound_nodes = $node <- * +crypto:payment:input -> crypto:currency:transaction <- * +crypto:payment:output -> crypto:currency:address -#sanction.ofac.sdn | uniq
+
+    // |
+    // {
+
+    //     for $item in $node.tags($lib.str.join("",($sanc_dist_prefix,".*"))) { // For all tags formatted like dist.sanction.ofac.sdn.number
+    //         $old_distance_values = ($lib.regex.findall("\d", $item)) // List of strings like ['2', '4'], should only be one... ideally
+    //         $new_distance_value = $lib.regex.findall("\d", $newtag).index(0)
+    //         if ($lib.math.number($new_distance_value) < $lib.math.number($old_distance_values.index(0)))
+    //             {
+    //                 $lib.print($lib.str.concat("Current path is ", $new_distance_value, " transactions away"))
+    //                 $lib.print($lib.str.concat("Previous path is ", $old_distance_values.index(0), " transactions away"))
+    //                 $lib.print("Removing old value")
+    //                 $lib.print($lib.str.concat("Removing ", $lib.str.concat($sanc_dist_prefix,".",$old_distance_values.index(0)), " from ", $node))
+    //                 | [-#$lib.str.concat($sanc_dist_prefix,".",$old_distance_values.index(0))]
+    //                 $lib.print($lib.str.concat("Removed ", $lib.str.concat($sanc_dist_prefix,".",$old_distance_values.index(0)), " from ", $node))
+    //             }
+    //         else {
+    //                 $lib.print($lib.str.concat("Current path is ", $new_distance_value, " transactions away"))
+    //                 $lib.print($lib.str.concat("Previous path is ", $old_distance_values.index(0), " transactions away"))
+    //                 $lib.print("Not removing old value")
+    //         }
+    //     }
+
+    // }
+
+    // {
+
+    //     if ($lib.len($node.tags($sanc_dist_prefix)) < 1) { // If there are no tags like dist.sanction.ofac.sdn.number
+
+    //         try {
+
+    //             $lib.print($lib.str.concat("Applying ", $newtag, " to ", $node))
+    //             | [+#$newtag]
+    //             $lib.print($lib.str.concat("Applied ", $newtag, " to ", $node))
+    //         }
+
+    //         catch * as err {
+    //             $lib.print("Encountered error")
+    //         }
+
+    //     }
+
+    //     else {
+    //         $lib.print("Node has dist.sanction.ofac.sdn.* tag, not acting")
+    //     }
+
+    // }}
+
+    {$connected_inbound_nodes = $node <- * +crypto:payment:output -> crypto:currency:transaction <- * +crypto:payment:input -> crypto:currency:address -#sanction.ofac.sdn | uniq
+
+    |
+    {
+
+        for $item in $node.tags($lib.str.join("",($sanc_dist_prefix,".*"))) { // For all tags formatted like dist.sanction.ofac.sdn.number
+            $old_distance_values = ($lib.regex.findall("\d", $item)) // List of strings like ['2', '4'], should only be one... ideally
+            $new_distance_value = $lib.regex.findall("\d", $newtag).index(0)
+            if ($lib.math.number($new_distance_value) < $lib.math.number($old_distance_values.index(0)))
+                {
+                    $lib.print($lib.str.concat("Current path is ", $new_distance_value, " transactions away"))
+                    $lib.print($lib.str.concat("Previous path is ", $old_distance_values.index(0), " transactions away"))
+                    $lib.print("Removing old value")
+                    $lib.print($lib.str.concat("Removing ", $lib.str.concat($sanc_dist_prefix,".",$old_distance_values.index(0)), " from ", $node))
+                    | [-#$lib.str.concat($sanc_dist_prefix,".",$old_distance_values.index(0))]
+                    $lib.print($lib.str.concat("Removed ", $lib.str.concat($sanc_dist_prefix,".",$old_distance_values.index(0)), " from ", $node))
+                }
+            else {
+                    $lib.print($lib.str.concat("Current path is ", $new_distance_value, " transactions away"))
+                    $lib.print($lib.str.concat("Previous path is ", $old_distance_values.index(0), " transactions away"))
+                    $lib.print("Not removing old value")
+            }
+        }
+
+    }
+
+    {
+
+
+        if ($lib.len($node.tags($sanc_dist_prefix)) < 1) { // If there are no tags like dist.sanction.ofac.sdn.number
+
+            try {
+
+                $lib.print($lib.str.concat("Applying ", $newtag, " to ", $node))
+                | [+#$newtag:prevnode=$base_node_address]
+                $lib.print($lib.str.concat("Applied ", $newtag, " to ", $node))
+            }
+
+            catch * as err {
+                $lib.print("Encountered error")
+            }
+
+        }
+
+        else {
+            $lib.print("Node has dist.sanction.ofac.sdn.* tag, not acting")
+        }
+
+    }}
+
+}
+
+
+// // If we have a rep.ransomwhere.* tag, mark all connected addresses with a distance of 1
+// // Omit any nodes with the rep.ransomwhere.* tag, in case the node is both sending and receiving to a transaction
+// if $sanc_aka {
+//     // Inbound transactions
+//     {
+//         | $node <- * +crypto:payment:output -> crypto:currency:transaction <- * +crypto:payment:input -> crypto:currency:address -#$sanc_aka | uniq
+//         | $newtag = $lib.str.concat("dist.",$sanc_aka,".1")
+//         | [+#$newtag]
+//     }
+
+//     // Outbound transactions
+//     {
+//         | $node <- * +crypto:payment:input -> crypto:currency:transaction <- * +crypto:payment:output -> crypto:currency:address -#$sanc_aka | uniq
+//         | $newtag = $lib.str.concat("dist.",$sanc_aka,".1")
+//         | [+#$newtag]
+//     }
+// }
+
+
+// // If we have a dist.rep.ransomwhere.* tag, mark all connected addresses with a distance of n + 1
+// // Omit any nodes that already have a rep.ransomwhere.* tag or a dist.rep.ransomwhere.* tag
+// if $sanc_dist_value {
+
+//     switch $sanc_dist_value {
+//         "1": {
+//             $newtag = $lib.str.concat($sanc_dist_prefix,".2")
+//         }
+//         "2": {
+//             $newtag = $lib.str.concat($sanc_dist_prefix,".3")
+//         }
+//         "3": {
+//             $newtag = $lib.str.concat($sanc_dist_prefix,".4")
+//         }
+//         "4": {
+//             $newtag = $lib.str.concat($sanc_dist_prefix,".5")
+//         }
+//         "5": {
+//             $newtag = $lib.str.concat($sanc_dist_prefix,".6")
+//         }
+//         "6": {
+//             $newtag = $lib.str.concat($sanc_dist_prefix,".7")
+//         }
+//         "7": {
+//             $newtag = $lib.str.concat($sanc_dist_prefix,".8")
+//         }
+//         "8": {
+//             $newtag = $lib.str.concat($sanc_dist_prefix,".9")
+//         }
+//         "9": {
+//             $newtag = $lib.str.concat($sanc_dist_prefix,".10")
+//         }
+//         "10": {
+//             $newtag = $lib.str.concat($sanc_dist_prefix,".11")
+//         }
+//         "11": {
+//             $newtag = $lib.str.concat($sanc_dist_prefix,".12")
+//         }
+//     }
+
+
+//     // Inbound transactions
+//     {
+//         | $node <- * +crypto:payment:output -> crypto:currency:transaction <- * +crypto:payment:input -> crypto:currency:address -#sanction.ofac.sdn -#dist.sanction.ofac.sdn.* | uniq
+//         | [+#$newtag]
+//     }
+
+//     // Outbound transactions
+//     {
+//         | $node <- * +crypto:payment:input -> crypto:currency:transaction <- * +crypto:payment:output -> crypto:currency:address -#sanction.ofac.sdn -#dist.sanction.ofac.sdn.* | uniq
+//         | [+#$newtag]
+//     }
+
+// }
