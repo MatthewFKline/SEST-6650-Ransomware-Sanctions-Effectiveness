@@ -3,8 +3,6 @@ import time
 
 import requests
 
-# results = requests.get("https://blockchain.info/rawaddr/1Hhe61Bwxs8Hd2WxzWY9FQyZicBiZGeSNW")
-
 BASE_URL = "https://blockchain.info/rawaddr/"
 
 # content = results.content
