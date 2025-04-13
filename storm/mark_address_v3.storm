@@ -265,21 +265,21 @@ if $dist_value {
 
 if $sanc_aka {
 
-    {$connected_outbound_nodes = $node <- * +crypto:payment:input -> crypto:currency:transaction <- * +crypto:payment:output -> crypto:currency:address -#sanction.ofac.sdn | uniq
+    // {$connected_outbound_nodes = $node <- * +crypto:payment:input -> crypto:currency:transaction <- * +crypto:payment:output -> crypto:currency:address -#sanction.ofac.sdn | uniq
 
-    |
-    {
-        try {
-            $newtag = $lib.str.concat("dist.",$sanc_aka,".1")
-            $lib.print($lib.str.concat("Applying ", $newtag, " to ", $node))
-            | [+#$newtag:prevnode=$base_node_address]
-            $lib.print($lib.str.concat("Applied ", $newtag, " to ", $node))
-        }
+    // |
+    // {
+    //     try {
+    //         $newtag = $lib.str.concat("dist.",$sanc_aka,".1")
+    //         $lib.print($lib.str.concat("Applying ", $newtag, " to ", $node))
+    //         | [+#$newtag:prevnode=$base_node_address]
+    //         $lib.print($lib.str.concat("Applied ", $newtag, " to ", $node))
+    //     }
 
-        catch * as err {
-            $lib.print("Encountered error")
-        }
-    }}
+    //     catch * as err {
+    //         $lib.print("Encountered error")
+    //     }
+    // }}
 
     {$connected_input_nodes = $node <- * +crypto:payment:output -> crypto:currency:transaction <- * +crypto:payment:input -> crypto:currency:address -#sanction.ofac.sdn | uniq
 

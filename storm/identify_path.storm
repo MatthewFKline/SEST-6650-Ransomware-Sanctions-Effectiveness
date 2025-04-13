@@ -1,0 +1,19 @@
+// crypto:currency:address=btc/3A3naWtuHJ8FwnMosKGfGJwSXq4rwqyu2X
+
++crypto:currency:address
+
+init {
+    $addresses = ()
+}
+
+$addresses.append($lib.str.concat("crypto:currency:address=btc/",:iden))
+
+{tree { if $node.tags("dist.rep.ransomwhere.*.*") { $val=#$node.tags("dist.rep.ransomwhere.*.*").index(0):prevnode } else { $val=$lib.null }  -> { crypto:currency:address ?= $val} $addresses.append($lib.str.concat("crypto:currency:address=btc/",:iden)) }}
+{tree { if $node.tags("dist.sanction.ofac.sdn.*") { $val=#$node.tags("dist.sanction.ofac.sdn.*").index(0):prevnode } else { $val=$lib.null }  -> { crypto:currency:address ?= $val} $addresses.append($lib.str.concat("crypto:currency:address=btc/",:iden)) }}
+| spin
+
+fini {
+    $lib.print($lib.str.concat($addresses))
+}
+
+

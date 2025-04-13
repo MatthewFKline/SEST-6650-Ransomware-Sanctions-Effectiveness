@@ -14,10 +14,14 @@ with open("data/ransomware_data.json", "r") as f:
 
 ransom_addresses = [item["address"] for item in ransom_addresses]
 
-for item in ransom_addresses:
-    response = requests.get(BASE_URL + item)
-    response.raise_for_status()
-    data = response.json()
-    if data["n_tx"] == 0:
-        print(f"No transactions observed for {item}")
-    time.sleep(10.5)
+with open("null_addresses.txt", "x") as f:
+    for item in ransom_addresses:
+        response = requests.get(BASE_URL + item)
+        response.raise_for_status()
+        data = response.json()
+        if data["n_tx"] == 0:
+            print(f"No transactions observed for {item}")
+            f.write(f"No transactions observed for {item}\n")
+        else:
+            print(f"Observed > 0 transactions for {item}")
+        time.sleep(10.5)

@@ -22,4 +22,3 @@ if ($lib.len($node.tags("blockcypher_enriched")) < 1) {
 else {
     $lib.print("Already enriched node, skipping")
 }
-
