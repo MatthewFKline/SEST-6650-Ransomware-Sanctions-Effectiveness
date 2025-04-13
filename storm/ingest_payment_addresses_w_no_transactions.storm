@@ -1,0 +1,4 @@
+for ($field1) in $rows {
+    crypto:currency:address=("btc", $field1)
+    [+#no_transactions]
+}
