@@ -1,5 +1,10 @@
 # SEST-6650: Hands-On Open Source Intelligence Capstone Project
 
+## [Written Report Here](Public_Kline_Capstone_Report_SEST-6650.pdf)
+
+
+## Some rambling
+
 This repository contains the code, some data, and my report for SEST-6650 (Georgetown University Security Studies Program).
 
 I tried to examine the Bitcoin transaction volume and frequency of addresses involved in ransomware activity. I looked [addresses sanctioned by OFAC](https://sanctionslist.ofac.treas.gov/Home/SdnList) and ransomware payment addresses publicly reported to [the Ransomwhere dataset](https://ransomwhe.re/#download).
@@ -31,3 +36,15 @@ So, yeah, the BFS designed to find paths was rough. It did work, and I found tha
 Other than that, the big gap in visibility here is the whole _waves hands_ cybercrime ecosystem thing. I can't really state one way or another (based on this research) whether or not ransomware operators or the exchange/mixer infrastructure just renamed themselves to avoid sanctions, switched up some things to avoid signatures, etc. Also, I have no idea how good the breakdown of ransomware families/actors present in Ransomwhere is. Attribution is a thing and cybercrime is messy. I suspect datasets drawn from sources like Mandiant, Crowdstrike, Microsoft, FBI, might be more reliable, but those aren't going to be publicly accessible.
 
 So yeah. I'm pushing this README. Thank god the semester is over.
+
+---
+
+## FAQ
+
+### Q: Why no memes?
+
+A: Because I was already pushing my luck with the page limit
+
+### Q: Are these numbers for BFS vs CBFS in the paper accurate?
+
+A: They are accurate in the sense that they are real numbers that exist. Beyond that, you'd really have to ask for divine insight from your deity or quasi-deity about that math, that's what I did. Which explains why the math is jank, because all I got back was some sort of auditory madness from whatever Lovecraftian entity came out of my calculator.
